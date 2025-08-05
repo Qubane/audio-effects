@@ -7,11 +7,11 @@ import wave
 import numpy as np
 
 
-def read_wav_file(filepath: str) -> tuple[bytes, dict[str, int]]:
+def read_wav_file(filepath: str) -> tuple[np.ndarray, dict[str, int]]:
     """
     Reads wav files
     :param filepath: path to wave file
-    :return: tuple of raw bytes and wave parameters
+    :return: tuple of samples and wave parameters
     """
 
     # basic parameters
@@ -25,17 +25,25 @@ def read_wav_file(filepath: str) -> tuple[bytes, dict[str, int]]:
         parameters["sample_width"] = file.getsampwidth()
         parameters["channel_number"] = file.getnchannels()
         parameters["sample_rate"] = file.getframerate()
-        frames = file.readframes(file.getnframes())
+
+        if parameters["sample_width"] == 1:
+            samples = np.array(file.readframes(file.getnframes()), dtype=np.int8) ^ 127
+        elif parameters["sample_width"] == 2:
+            samples = np.array(file.readframes(file.getnframes()), dtype=np.int16)
+        elif parameters["sample_width"] == 4:
+            samples = np.array(file.readframes(file.getnframes()), dtype=np.float32)
+        else:
+            raise NotImplementedError
 
     # return parameters
-    return frames, parameters
+    return samples, parameters
 
 
-def write_wav_file(filename: str, frames: bytes, parameters: dict[str, int]) -> None:
+def write_wav_file(filename: str, samples: np.ndarray, parameters: dict[str, int]) -> None:
     """
     Writes wave file
     :param filename: writing filename
-    :param frames: raw frames
+    :param samples: wave file samples
     :param parameters: wave file parameters
     """
 
@@ -43,7 +51,7 @@ def write_wav_file(filename: str, frames: bytes, parameters: dict[str, int]) -> 
         file.setsampwidth(parameters["sample_width"])
         file.setnchannels(parameters["channel_number"])
         file.setframerate(parameters["sample_rate"])
-        file.writeframes(frames)
+        file.writeframes(samples.tobytes())
 
 
 class Application:
@@ -55,7 +63,9 @@ class Application:
         ...
 
     def run(self):
-        ...
+        """
+        Runs the application
+        """
 
 
 def main():
