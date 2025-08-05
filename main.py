@@ -27,16 +27,16 @@ def read_wav_file(filepath: str) -> tuple[np.ndarray, dict[str, int]]:
         parameters["sample_rate"] = file.getframerate()
 
         if parameters["sample_width"] == 1:
-            samples = np.array(file.readframes(file.getnframes()), dtype=np.int8) ^ 127
+            samples = np.frombuffer(file.readframes(file.getnframes()), dtype=np.int8)
         elif parameters["sample_width"] == 2:
-            samples = np.array(file.readframes(file.getnframes()), dtype=np.int16)
+            samples = np.frombuffer(file.readframes(file.getnframes()), dtype=np.int16)
         elif parameters["sample_width"] == 4:
-            samples = np.array(file.readframes(file.getnframes()), dtype=np.float32)
+            samples = np.frombuffer(file.readframes(file.getnframes()), dtype=np.float32)
         else:
             raise NotImplementedError
 
     # return parameters
-    return samples, parameters
+    return np.copy(samples), parameters
 
 
 def write_wav_file(filename: str, samples: np.ndarray, parameters: dict[str, int]) -> None:
@@ -66,6 +66,9 @@ class Application:
         """
         Runs the application
         """
+
+        samples, parameters = read_wav_file("11.wav")
+        write_wav_file("pls_work.wav", samples, parameters)
 
 
 def main():
