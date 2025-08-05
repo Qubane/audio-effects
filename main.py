@@ -31,6 +31,21 @@ def read_wav_file(filepath: str) -> tuple[bytes, dict[str, int]]:
     return frames, parameters
 
 
+def write_wav_file(filename: str, frames: bytes, parameters: dict[str, int]) -> None:
+    """
+    Writes wave file
+    :param filename: writing filename
+    :param frames: raw frames
+    :param parameters: wave file parameters
+    """
+
+    with wave.open(filename, "w") as file:
+        file.setsampwidth(parameters["sample_width"])
+        file.setnchannels(parameters["channel_number"])
+        file.setframerate(parameters["sample_rate"])
+        file.writeframes(frames)
+
+
 class Application:
     """
     Application class
