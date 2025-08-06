@@ -5,6 +5,7 @@ Main file
 
 import wave
 import numpy as np
+from numba import njit
 
 
 def read_wav_file(filepath: str) -> tuple[np.ndarray, dict[str, int]]:
@@ -67,8 +68,33 @@ class Application:
         Runs the application
         """
 
+        # read samples
         samples, parameters = read_wav_file("11.wav")
-        write_wav_file("pls_work.wav", samples, parameters)
+
+        # make datatype
+        if parameters["sample_width"] == 1:
+            dtype = np.int8
+        elif parameters["sample_width"] == 2:
+            dtype = np.int16
+        elif parameters["sample_width"] == 4:
+            dtype = np.float32
+        else:
+            raise NotImplementedError
+
+        # apply effects
+        samples = self.effect_1(samples, dtype)
+
+        # write new samples
+        write_wav_file("out.wav", samples, parameters)
+
+    def effect_1(self, samples: np.ndarray, dtype: np.dtype) -> np.ndarray:
+        """
+        Cool effect
+        :param samples: audio samples
+        :param dtype: data type
+        """
+
+        new_samples = np.zeros(samples.shape[0], dtype=dtype)
 
 
 def main():
