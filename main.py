@@ -69,25 +69,34 @@ class Application:
         """
 
         # read samples
-        samples, parameters = read_wav_file("tests/12.wav")
+        samples, parameters = read_wav_file("tests/rick_16.wav")
 
         # apply effects
-        samples = self.effect_1(samples, parameters)
+        samples = self.effect_1(samples, parameters, 4, 0.1)
 
         # write new samples
         write_wav_file("out.wav", samples, parameters)
 
-    def effect_1(self, samples: np.ndarray, parameters: dict[str, int]) -> np.ndarray:
+    @staticmethod
+    def effect_1(
+            samples: np.ndarray,
+            parameters: dict[str, int],
+            cycle_speed: float,
+            jump_distance: float) -> np.ndarray:
         """
         Cool effect
         :param samples: audio samples
         :param parameters: wave file parameters
+        :param cycle_speed: effect cycling speed
+        :param jump_distance: effect jump distance
         """
+
+        jump_distance *= parameters["sample_rate"]
 
         new_samples = np.zeros(samples.shape[0], dtype=samples.dtype)
 
         for idx in range(len(samples)):
-            new_samples[idx] = samples[int(idx + np.sinh(idx % 8) * 512) % len(samples)]
+            new_samples[idx] = samples[int(idx + np.sinh(idx % cycle_speed) * jump_distance) % len(samples)]
 
         return new_samples
 
