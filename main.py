@@ -69,32 +69,27 @@ class Application:
         """
 
         # read samples
-        samples, parameters = read_wav_file("11.wav")
-
-        # make datatype
-        if parameters["sample_width"] == 1:
-            dtype = np.int8
-        elif parameters["sample_width"] == 2:
-            dtype = np.int16
-        elif parameters["sample_width"] == 4:
-            dtype = np.float32
-        else:
-            raise NotImplementedError
+        samples, parameters = read_wav_file("tests/12.wav")
 
         # apply effects
-        samples = self.effect_1(samples, dtype)
+        samples = self.effect_1(samples, parameters)
 
         # write new samples
         write_wav_file("out.wav", samples, parameters)
 
-    def effect_1(self, samples: np.ndarray, dtype: np.dtype) -> np.ndarray:
+    def effect_1(self, samples: np.ndarray, parameters: dict[str, int]) -> np.ndarray:
         """
         Cool effect
         :param samples: audio samples
-        :param dtype: data type
+        :param parameters: wave file parameters
         """
 
-        new_samples = np.zeros(samples.shape[0], dtype=dtype)
+        new_samples = np.zeros(samples.shape[0], dtype=samples.dtype)
+
+        for idx in range(len(samples)):
+            new_samples[idx] = samples[int(idx + np.sinh(idx % 8) * 512) % len(samples)]
+
+        return new_samples
 
 
 def main():
